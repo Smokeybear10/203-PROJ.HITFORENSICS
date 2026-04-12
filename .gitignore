@@ -1,0 +1,6 @@
+# Ignore datasets
+*.csv
+
+# Ignore Python virtual environments
+venv/
+env/
