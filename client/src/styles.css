@@ -1,0 +1,40 @@
+* { box-sizing: border-box; }
+body {
+  margin: 0;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  background: #0b0d11;
+  color: #e6e8ec;
+}
+.app { max-width: 720px; margin: 0 auto; padding: 2rem 1rem; }
+header { margin-bottom: 2rem; }
+.brand { font-size: 1.25rem; font-weight: 700; color: #e6e8ec; text-decoration: none; }
+h1 { margin: 0 0 1rem; }
+input[type="search"] {
+  width: 100%;
+  padding: 0.75rem 1rem;
+  font-size: 1rem;
+  background: #161a21;
+  color: inherit;
+  border: 1px solid #2a303a;
+  border-radius: 6px;
+}
+.results { list-style: none; padding: 0; margin: 1rem 0; }
+.results li {
+  display: flex;
+  justify-content: space-between;
+  padding: 0.6rem 0;
+  border-bottom: 1px solid #1f242d;
+}
+.results a { color: #8ab4ff; text-decoration: none; }
+.results a:hover { text-decoration: underline; }
+.popularity { color: #7a8290; font-size: 0.85rem; }
+.subtle { color: #7a8290; margin-top: -0.5rem; }
+.json {
+  background: #161a21;
+  border: 1px solid #2a303a;
+  border-radius: 6px;
+  padding: 1rem;
+  overflow-x: auto;
+  font-size: 0.85rem;
+}
+.error { color: #ff8a8a; }

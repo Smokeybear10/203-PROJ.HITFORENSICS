@@ -1,6 +1,17 @@
-# Ignore datasets
+# Datasets
 *.csv
 
-# Ignore Python virtual environments
+# Python
 venv/
 env/
+__pycache__/
+
+# Node
+node_modules/
+dist/
+.env
+.env.local
+
+# Editor/OS
+.DS_Store
+.vscode/
