@@ -1,40 +1,298 @@
+/* ========== Reset & Base ========== */
 * { box-sizing: border-box; }
 body {
   margin: 0;
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
   background: #0b0d11;
   color: #e6e8ec;
+  line-height: 1.5;
 }
-.app { max-width: 720px; margin: 0 auto; padding: 2rem 1rem; }
-header { margin-bottom: 2rem; }
-.brand { font-size: 1.25rem; font-weight: 700; color: #e6e8ec; text-decoration: none; }
-h1 { margin: 0 0 1rem; }
-input[type="search"] {
-  width: 100%;
-  padding: 0.75rem 1rem;
-  font-size: 1rem;
+
+/* ========== Layout ========== */
+.app { max-width: 960px; margin: 0 auto; padding: 1rem 1.25rem; }
+
+header {
+  display: flex;
+  align-items: center;
+  gap: 2rem;
+  margin-bottom: 2rem;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid #1f242d;
+  flex-wrap: wrap;
+}
+
+.brand {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: #e6e8ec;
+  text-decoration: none;
+  white-space: nowrap;
+}
+
+nav { display: flex; gap: 0.25rem; flex-wrap: wrap; }
+
+nav a {
+  color: #7a8290;
+  text-decoration: none;
+  font-size: 0.85rem;
+  padding: 0.3rem 0.6rem;
+  border-radius: 4px;
+  transition: color 0.15s, background 0.15s;
+}
+nav a:hover { color: #e6e8ec; background: #1f242d; }
+nav a.active { color: #8ab4ff; background: #161a21; }
+
+/* ========== Typography ========== */
+h1 { margin: 0 0 0.5rem; font-size: 1.75rem; }
+h3 { margin: 0 0 0.75rem; font-size: 1.1rem; color: #e6e8ec; }
+.subtle { color: #7a8290; margin-top: 0; margin-bottom: 1rem; }
+.error { color: #ff8a8a; }
+
+/* ========== Cards ========== */
+.card {
+  background: #161a21;
+  border: 1px solid #2a303a;
+  border-radius: 8px;
+  padding: 1.25rem;
+  margin-bottom: 1rem;
+}
+
+/* ========== Inputs ========== */
+input[type="search"],
+input[type="text"],
+input[type="number"],
+select {
+  padding: 0.6rem 0.75rem;
+  font-size: 0.95rem;
   background: #161a21;
   color: inherit;
   border: 1px solid #2a303a;
   border-radius: 6px;
+  outline: none;
 }
+input[type="search"]:focus,
+input[type="number"]:focus,
+select:focus {
+  border-color: #8ab4ff;
+}
+input[type="search"] { width: 100%; }
+
+button {
+  padding: 0.6rem 1.25rem;
+  font-size: 0.95rem;
+  background: #8ab4ff;
+  color: #0b0d11;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: 600;
+  transition: background 0.15s;
+}
+button:hover { background: #a8c8ff; }
+button:disabled { opacity: 0.5; cursor: default; }
+
+/* ========== Search Results ========== */
 .results { list-style: none; padding: 0; margin: 1rem 0; }
 .results li {
   display: flex;
   justify-content: space-between;
+  align-items: center;
   padding: 0.6rem 0;
   border-bottom: 1px solid #1f242d;
 }
 .results a { color: #8ab4ff; text-decoration: none; }
 .results a:hover { text-decoration: underline; }
-.popularity { color: #7a8290; font-size: 0.85rem; }
-.subtle { color: #7a8290; margin-top: -0.5rem; }
-.json {
+.popularity { color: #7a8290; font-size: 0.85rem; white-space: nowrap; margin-left: 1rem; }
+.artist-name { color: #7a8290; font-size: 0.9rem; }
+
+/* ========== Data Tables ========== */
+.table-wrap { overflow-x: auto; }
+
+.data-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.9rem;
+}
+.data-table th {
+  text-align: left;
+  padding: 0.5rem 0.6rem;
+  border-bottom: 2px solid #2a303a;
+  color: #7a8290;
+  font-weight: 600;
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  white-space: nowrap;
+}
+.data-table td {
+  padding: 0.5rem 0.6rem;
+  border-bottom: 1px solid #1f242d;
+}
+.data-table tr:hover { background: #1a1f28; }
+.data-table a { color: #8ab4ff; text-decoration: none; }
+.data-table a:hover { text-decoration: underline; }
+
+/* ========== Home Page ========== */
+.hero {
+  text-align: center;
+  margin: 3rem 0 2.5rem;
+}
+.hero h1 {
+  font-size: 2.5rem;
+  margin-bottom: 0.75rem;
+  background: linear-gradient(135deg, #8ab4ff, #69db7c);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+.tagline {
+  color: #7a8290;
+  font-size: 1.1rem;
+  max-width: 600px;
+  margin: 0 auto 1.5rem;
+  line-height: 1.6;
+}
+.hero-cta {
+  display: inline-block;
+  padding: 0.7rem 1.5rem;
+  background: #8ab4ff;
+  color: #0b0d11;
+  text-decoration: none;
+  border-radius: 6px;
+  font-weight: 600;
+  transition: background 0.15s;
+}
+.hero-cta:hover { background: #a8c8ff; }
+
+.feature-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 1rem;
+  margin-top: 1rem;
+}
+.feature-card {
+  display: block;
   background: #161a21;
   border: 1px solid #2a303a;
-  border-radius: 6px;
-  padding: 1rem;
-  overflow-x: auto;
-  font-size: 0.85rem;
+  border-radius: 8px;
+  padding: 1.25rem;
+  text-decoration: none;
+  color: inherit;
+  transition: border-color 0.15s, transform 0.15s;
 }
-.error { color: #ff8a8a; }
+.feature-card:hover {
+  border-color: #8ab4ff;
+  transform: translateY(-2px);
+}
+.feature-card h3 { color: #8ab4ff; margin: 0 0 0.5rem; }
+.feature-card p { color: #7a8290; margin: 0; font-size: 0.9rem; line-height: 1.4; }
+
+/* ========== Track Detail (Song Spotlight) ========== */
+.track-detail h1 { font-size: 1.5rem; }
+
+.detail-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+@media (max-width: 700px) {
+  .detail-grid { grid-template-columns: 1fr; }
+}
+
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+  gap: 0.75rem;
+}
+.stats-grid > div {
+  display: flex;
+  flex-direction: column;
+}
+.stats-grid .label,
+.artist-stats .label {
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  color: #7a8290;
+  letter-spacing: 0.5px;
+  margin-bottom: 0.2rem;
+}
+
+/* ========== Filters ========== */
+.filter-bar {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-bottom: 1rem;
+}
+.filter-bar label { color: #7a8290; font-size: 0.9rem; }
+
+.filters { margin-bottom: 1rem; }
+.filter-row {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 0.75rem;
+}
+.filter-row label {
+  width: 110px;
+  text-transform: capitalize;
+  font-size: 0.9rem;
+  color: #7a8290;
+  flex-shrink: 0;
+}
+.filter-row input[type="range"] {
+  flex: 1;
+  accent-color: #8ab4ff;
+  min-width: 60px;
+}
+.filter-row input[type="number"] { width: 80px; }
+.filter-row span {
+  font-size: 0.85rem;
+  color: #7a8290;
+  min-width: 36px;
+  text-align: center;
+}
+.dash { min-width: 12px !important; }
+
+/* ========== Archetype Grid ========== */
+.archetype-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 1rem;
+}
+.archetype-card h3 { color: #8ab4ff; }
+.archetype-stats {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  font-size: 0.85rem;
+  color: #7a8290;
+  margin-top: 0.5rem;
+}
+
+/* ========== Chemistry ========== */
+.uplift {
+  color: #69db7c;
+  font-weight: 600;
+}
+
+/* ========== Artist Page ========== */
+.artist-stats {
+  display: flex;
+  gap: 2rem;
+  flex-wrap: wrap;
+}
+.artist-stats > div {
+  display: flex;
+  flex-direction: column;
+}
+
+/* ========== Recharts overrides ========== */
+.recharts-default-tooltip {
+  background: #161a21 !important;
+  border: 1px solid #2a303a !important;
+  border-radius: 6px !important;
+}
+.recharts-tooltip-label { color: #e6e8ec !important; }
+.recharts-tooltip-item { color: #8ab4ff !important; }

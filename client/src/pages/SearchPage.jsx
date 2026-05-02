@@ -28,7 +28,7 @@ export function SearchPage() {
 
   return (
     <section>
-      <h1>Search tracks</h1>
+      <h1>Search Tracks</h1>
       <input
         type="search"
         placeholder="e.g. blinding lights"
@@ -36,12 +36,15 @@ export function SearchPage() {
         onChange={(e) => setQ(e.target.value)}
         autoFocus
       />
-      {status === 'loading' && <p>Loading…</p>}
+      {status === 'loading' && <p>Loading...</p>}
       {status === 'error' && <p className="error">Something went wrong.</p>}
       <ul className="results">
         {results.map((r) => (
           <li key={r.track_id}>
-            <Link to={`/track/${r.track_id}`}>{r.track_name}</Link>
+            <div>
+              <Link to={`/track/${r.track_id}`}>{r.track_name}</Link>
+              {r.artist_name && <span className="artist-name"> — {r.artist_name}</span>}
+            </div>
             <span className="popularity">pop {r.popularity ?? '—'}</span>
           </li>
         ))}
