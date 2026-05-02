@@ -37,23 +37,16 @@ tracksRouter.get('/workbench', async (req, res, next) => {
     const tempoMax = Number(req.query.tempo_max) || 300;
     const lim = Math.min(Number(req.query.limit) || 50, 200);
 
+    // Optimized: uses mv_charted_tracks materialized view instead of inline CTE
     const { rows } = await pool.query(
-      `WITH track_debut AS (
-          SELECT cp.track_id,
-                 (EXTRACT(YEAR FROM MIN(cp.week_date))::int / 10) * 10 AS debut_decade,
-                 MIN(cp.peak_rank)      AS best_peak,
-                 MAX(cp.weeks_on_chart) AS total_weeks
-            FROM chart_performance cp
-           GROUP BY cp.track_id
-       )
-       SELECT t.track_id, t.track_name, a.artist_name,
+      `SELECT t.track_id, t.track_name, a.artist_name,
               t.danceability, t.energy, t.valence, t.tempo,
               d.debut_decade, d.best_peak, d.total_weeks,
               NTILE(100) OVER (PARTITION BY d.debut_decade ORDER BY d.total_weeks)
                   AS decade_longevity_percentile,
-              (SELECT ROUND(AVG(best_peak)::numeric, 2) FROM track_debut) AS global_avg_peak
+              (SELECT ROUND(AVG(best_peak)::numeric, 2) FROM mv_charted_tracks) AS global_avg_peak
          FROM tracks t
-         JOIN track_debut d ON t.track_id = d.track_id
+         JOIN mv_charted_tracks d ON t.track_id = d.track_id
          JOIN track_artists ta ON t.track_id = ta.track_id AND ta.is_primary = TRUE
          JOIN artists a ON ta.artist_id = a.artist_id
         WHERE t.danceability BETWEEN $1 AND $2
@@ -77,39 +70,33 @@ tracksRouter.get('/outliers', async (req, res, next) => {
     const decade = req.query.decade ? Number(req.query.decade) : null;
     const lim = Math.min(Number(req.query.limit) || 50, 200);
 
+    // Optimized: uses mv_charted_tracks instead of inline CTE for track_debut
     const { rows } = await pool.query(
-      `WITH track_debut AS (
-          SELECT cp.track_id,
-                 (EXTRACT(YEAR FROM MIN(cp.week_date))::int / 10) * 10 AS decade,
-                 MIN(cp.peak_rank) AS best_peak
-            FROM chart_performance cp
-           GROUP BY cp.track_id
-       ),
-       decade_stats AS (
-          SELECT td.decade,
+      `WITH decade_stats AS (
+          SELECT d.debut_decade AS decade,
                  AVG(t.danceability) AS mean_d, STDDEV(t.danceability) AS sd_d,
                  AVG(t.energy)       AS mean_e, STDDEV(t.energy)       AS sd_e,
                  AVG(t.acousticness) AS mean_a, STDDEV(t.acousticness) AS sd_a
-            FROM track_debut td
+            FROM mv_charted_tracks d
             JOIN tracks t USING (track_id)
-           GROUP BY td.decade
+           GROUP BY d.debut_decade
        )
        SELECT t.track_id, t.track_name, a.artist_name,
-              td.decade, td.best_peak,
+              d.debut_decade AS decade, d.best_peak,
               ROUND(((t.danceability - ds.mean_d) / NULLIF(ds.sd_d, 0))::numeric, 2) AS z_dance,
               ROUND(((t.energy       - ds.mean_e) / NULLIF(ds.sd_e, 0))::numeric, 2) AS z_energy,
               ROUND(((t.acousticness - ds.mean_a) / NULLIF(ds.sd_a, 0))::numeric, 2) AS z_acoustic
-         FROM track_debut td
+         FROM mv_charted_tracks d
          JOIN tracks t        USING (track_id)
-         JOIN decade_stats ds USING (decade)
+         JOIN decade_stats ds ON d.debut_decade = ds.decade
          JOIN track_artists ta ON t.track_id = ta.track_id AND ta.is_primary = TRUE
          JOIN artists a ON ta.artist_id = a.artist_id
-        WHERE td.best_peak <= 10
-          AND ($1::int IS NULL OR td.decade = $1)
+        WHERE d.best_peak <= 10
+          AND ($1::int IS NULL OR d.debut_decade = $1)
           AND (ABS((t.danceability - ds.mean_d) / NULLIF(ds.sd_d, 0)) > 2
             OR ABS((t.energy       - ds.mean_e) / NULLIF(ds.sd_e, 0)) > 2
             OR ABS((t.acousticness - ds.mean_a) / NULLIF(ds.sd_a, 0)) > 2)
-        ORDER BY td.decade, td.best_peak
+        ORDER BY d.debut_decade, d.best_peak
         LIMIT $2`,
       [decade, lim]
     );
@@ -174,26 +161,19 @@ tracksRouter.get('/:id/similar', async (req, res, next) => {
     }
     const lim = Math.min(Number(req.query.limit) || 10, 50);
 
+    // Optimized: uses cube extension + GiST index for sub-second k-NN lookup
+    // (down from multi-second brute-force Euclidean scan)
     const { rows } = await pool.query(
-      `WITH ref AS (
-          SELECT danceability, energy, valence, acousticness, instrumentalness
-            FROM tracks WHERE track_id = $1
-       )
-       SELECT t.track_id, t.track_name, a.artist_name, t.popularity,
+      `SELECT t.track_id, t.track_name, a.artist_name, t.popularity,
               t.danceability, t.energy, t.valence, t.acousticness, t.instrumentalness,
-              ROUND(SQRT(
-                POWER(ref.danceability     - t.danceability, 2) +
-                POWER(ref.energy           - t.energy, 2) +
-                POWER(ref.valence          - t.valence, 2) +
-                POWER(ref.acousticness     - t.acousticness, 2) +
-                POWER(ref.instrumentalness - t.instrumentalness, 2)
-              )::numeric, 4) AS audio_distance
-         FROM ref
-         CROSS JOIN tracks t
+              ROUND((t.audio_cube <-> (SELECT audio_cube FROM tracks WHERE track_id = $1))::numeric, 4)
+                  AS audio_distance
+         FROM tracks t
          JOIN track_artists ta ON t.track_id = ta.track_id AND ta.is_primary = TRUE
          JOIN artists a ON ta.artist_id = a.artist_id
         WHERE t.track_id <> $1
-        ORDER BY audio_distance ASC
+          AND t.audio_cube IS NOT NULL
+        ORDER BY t.audio_cube <-> (SELECT audio_cube FROM tracks WHERE track_id = $1)
         LIMIT $2`,
       [id, lim]
     );

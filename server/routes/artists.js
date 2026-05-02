@@ -26,13 +26,9 @@ artistsRouter.get('/search', async (req, res, next) => {
 artistsRouter.get('/chemistry', async (req, res, next) => {
   try {
     const lim = Math.min(Number(req.query.limit) || 25, 100);
+    // Optimized: uses mv_charted_tracks instead of inline charted_tracks CTE
     const { rows } = await pool.query(
-      `WITH charted_tracks AS (
-          SELECT track_id, MIN(peak_rank) AS best_peak
-            FROM chart_performance
-           GROUP BY track_id
-       ),
-       track_artist_counts AS (
+      `WITH track_artist_counts AS (
           SELECT track_id, COUNT(*) AS n_artists
             FROM track_artists
            GROUP BY track_id
@@ -43,7 +39,7 @@ artistsRouter.get('/chemistry', async (req, res, next) => {
                  COUNT(*)          AS solo_hits
             FROM track_artists ta
             JOIN track_artist_counts tac ON ta.track_id = tac.track_id AND tac.n_artists = 1
-            JOIN charted_tracks ct       ON ta.track_id = ct.track_id
+            JOIN mv_charted_tracks ct    ON ta.track_id = ct.track_id
            GROUP BY ta.artist_id
        ),
        pairs AS (
@@ -52,7 +48,7 @@ artistsRouter.get('/chemistry', async (req, res, next) => {
             JOIN track_artists ta2
               ON ta1.track_id  = ta2.track_id
              AND ta1.artist_id < ta2.artist_id
-            JOIN charted_tracks ct ON ta1.track_id = ct.track_id
+            JOIN mv_charted_tracks ct ON ta1.track_id = ct.track_id
        ),
        pair_stats AS (
           SELECT a1, a2,
