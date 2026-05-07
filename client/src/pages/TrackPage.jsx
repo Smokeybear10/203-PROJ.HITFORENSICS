@@ -69,9 +69,18 @@ export function TrackPage() {
       <h1><em>{track.track_name}</em></h1>
       <p className="lede">
         by{' '}
-        {track.artist_id
-          ? <Link to={`/artist/${track.artist_id}`} style={{ borderBottom: '2px solid currentColor' }}>{track.artist_name}</Link>
-          : track.artist_name}
+        {track.artists && track.artists.map((artist, index) => (
+          <span key={artist.artist_id}>
+            <Link 
+              to={`/artist/${artist.artist_id}`} 
+              style={{ borderBottom: '2px solid currentColor' }}
+            >
+              {artist.artist_name}
+            </Link>
+            {/* Add a comma and space between artists, but not after the last one */}
+            {index < track.artists.length - 1 ? ', ' : ''}
+          </span>
+        ))}
       </p>
 
       <div className="detail-grid">

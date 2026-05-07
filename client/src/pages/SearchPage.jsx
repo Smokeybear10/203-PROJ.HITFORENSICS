@@ -56,8 +56,23 @@ export function SearchPage() {
           {results.map((r) => (
             <li key={r.track_id}>
               <div>
-                <Link to={`/track/${r.track_id}`} className="track-title">{r.track_name}</Link>
-                {r.artist_name && <span className="artist-name">— {r.artist_name}</span>}
+                <Link to={`/track/${r.track_id}`} className="track-title">
+                  {r.track_name}
+                </Link>
+                
+                {/* Map through the array of artists */}
+                {r.artists && r.artists.length > 0 && (
+                  <span className="artist-name">
+                    —{' '}
+                    {r.artists.map((artist, index) => (
+                      <span key={artist.artist_id}>
+                        {artist.artist_name}
+                        {/* Add a comma between artists, but not after the last one */}
+                        {index < r.artists.length - 1 ? ', ' : ''}
+                      </span>
+                    ))}
+                  </span>
+                )}
               </div>
               <span className="popularity">pop · {r.popularity ?? '—'}</span>
             </li>

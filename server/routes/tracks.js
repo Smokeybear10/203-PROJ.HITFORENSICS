@@ -9,14 +9,22 @@ tracksRouter.get('/search', async (req, res, next) => {
     const q = (req.query.q ?? '').toString().trim();
     if (!q) return res.json([]);
     const { rows } = await pool.query(
-      `SELECT t.track_id, t.track_name, a.artist_name, t.popularity
+      `SELECT t.track_id, t.track_name, t.popularity,
+              json_agg(
+                json_build_object(
+                  'artist_id', a.artist_id, 
+                  'artist_name', a.artist_name, 
+                  'is_primary', ta.is_primary
+                ) ORDER BY ta.is_primary DESC
+              ) as artists
          FROM tracks t
-         JOIN track_artists ta ON t.track_id = ta.track_id AND ta.is_primary = TRUE
+         JOIN track_artists ta ON t.track_id = ta.track_id
          JOIN artists a ON ta.artist_id = a.artist_id
         WHERE t.track_name ILIKE '%' || $1 || '%'
+        GROUP BY t.track_id, t.track_name, t.popularity
         ORDER BY t.popularity DESC NULLS LAST
         LIMIT 20`,
-      [q]
+      [q] 
     );
     res.json(rows);
   } catch (err) {
@@ -121,15 +129,23 @@ tracksRouter.get('/:id', async (req, res, next) => {
       return res.status(400).json({ error: 'track id must be an integer' });
     }
     const { rows } = await pool.query(
-      `SELECT t.track_id, t.track_name, a.artist_id, a.artist_name,
+      `SELECT t.track_id, t.track_name, 
+              json_agg(
+                json_build_object(
+                  'artist_id', a.artist_id, 
+                  'artist_name', a.artist_name, 
+                  'is_primary', ta.is_primary
+                ) ORDER BY ta.is_primary DESC -- Puts the primary artist first
+              ) as artists,
               t.danceability, t.energy, t.valence, t.acousticness,
               t.instrumentalness, t.speechiness, t.liveness,
               t.tempo, t.loudness, t.key, t.mode, t.time_signature,
               t.duration_ms, t.explicit, t.popularity
-         FROM tracks t
-         JOIN track_artists ta ON t.track_id = ta.track_id AND ta.is_primary = TRUE
-         JOIN artists a        ON ta.artist_id = a.artist_id
-        WHERE t.track_id = $1`,
+        FROM tracks t
+        JOIN track_artists ta ON t.track_id = ta.track_id
+        JOIN artists a        ON ta.artist_id = a.artist_id
+        WHERE t.track_id = $1
+        GROUP BY t.track_id`,
       [id]
     );
     if (rows.length === 0) return res.status(404).json({ error: 'not found' });
