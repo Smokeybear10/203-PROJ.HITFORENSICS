@@ -16,24 +16,25 @@ export function EraDecoderPage() {
       .catch(() => setStatus('error'));
   }, [decade]);
 
-  const zColor = (z) => {
+  const zStyle = (z) => {
     const abs = Math.abs(Number(z));
-    if (abs > 3) return '#ff6b6b';
-    if (abs > 2.5) return '#ffa94d';
-    return '#e6e8ec';
+    if (abs > 3) return { color: '#FF2E63', fontWeight: 700 };
+    if (abs > 2.5) return { color: '#F4B936', fontWeight: 700 };
+    return { color: '#0E1E3F' };
   };
 
   return (
     <section>
-      <h1>Era Decoder</h1>
-      <p className="subtle">
-        Top-10 hits that were outliers for their decade, at least 2 standard deviations
-        from the era mean in danceability, energy, or acousticness. These songs were ahead of
-        (or maybe behind) their time.
+      <span className="kicker"><span className="dot" />File Q9 · z-score outliers</span>
+      <h1>The <em>outliers</em>, decade by decade.</h1>
+      <p className="lede">
+        Top-10 hits at least <b>two standard deviations</b> from the era mean in danceability,
+        energy, or acousticness. Songs that didn't sound like anything else on the chart
+        when they peaked. Ahead of the curve, behind it, or just sideways.
       </p>
 
       <div className="filter-bar">
-        <label>Decade:</label>
+        <label>Decade</label>
         <select value={decade} onChange={(e) => setDecade(e.target.value)}>
           <option value="">All decades</option>
           {decades.map((d) => (
@@ -42,7 +43,7 @@ export function EraDecoderPage() {
         </select>
       </div>
 
-      {status === 'loading' && <p>Loading...</p>}
+      {status === 'loading' && <p className="loading">Loading outliers</p>}
       {status === 'error' && <p className="error">Failed to load data.</p>}
 
       {status === 'ok' && (
@@ -51,7 +52,7 @@ export function EraDecoderPage() {
             <thead>
               <tr>
                 <th>Track</th><th>Artist</th><th>Decade</th><th>Peak</th>
-                <th>z Dance</th><th>z Energy</th><th>z Acoustic</th>
+                <th>z dance</th><th>z energy</th><th>z acoustic</th>
               </tr>
             </thead>
             <tbody>
@@ -59,11 +60,11 @@ export function EraDecoderPage() {
                 <tr key={r.track_id}>
                   <td><Link to={`/track/${r.track_id}`}>{r.track_name}</Link></td>
                   <td>{r.artist_name}</td>
-                  <td>{r.decade}s</td>
-                  <td>#{r.best_peak}</td>
-                  <td style={{ color: zColor(r.z_dance) }}>{r.z_dance}</td>
-                  <td style={{ color: zColor(r.z_energy) }}>{r.z_energy}</td>
-                  <td style={{ color: zColor(r.z_acoustic) }}>{r.z_acoustic}</td>
+                  <td className="num">{r.decade}s</td>
+                  <td className="num">#{r.best_peak}</td>
+                  <td className="num" style={zStyle(r.z_dance)}>{r.z_dance}</td>
+                  <td className="num" style={zStyle(r.z_energy)}>{r.z_energy}</td>
+                  <td className="num" style={zStyle(r.z_acoustic)}>{r.z_acoustic}</td>
                 </tr>
               ))}
             </tbody>

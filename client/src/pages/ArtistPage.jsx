@@ -14,14 +14,15 @@ export function ArtistPage() {
       .catch(() => setStatus('error'));
   }, [id]);
 
-  if (status === 'loading') return <p>Loading...</p>;
+  if (status === 'loading') return <p className="loading">Pulling the discography</p>;
   if (status === 'error') return <p className="error">Artist not found.</p>;
 
   return (
     <section>
-      <h1>{artist.artist_name}</h1>
+      <span className="kicker"><span className="dot" />File Q3 · artist profile</span>
+      <h1><em>{artist.artist_name}</em></h1>
 
-      <div className="card artist-stats">
+      <div className="card artist-stats" style={{ marginTop: 24 }}>
         <div>
           <span className="label">Popularity</span>
           <span>{artist.popularity ?? '—'}</span>
@@ -33,27 +34,32 @@ export function ArtistPage() {
         {artist.genres && (
           <div>
             <span className="label">Genres</span>
-            <span>{artist.genres}</span>
+            <span style={{ fontSize: 16, fontStyle: 'italic' }}>{artist.genres}</span>
           </div>
         )}
+        <div>
+          <span className="label">Tracks</span>
+          <span>{artist.tracks.length}</span>
+        </div>
       </div>
 
       <div className="card">
-        <h3>Discography ({artist.tracks.length} tracks)</h3>
+        <h3>Discography</h3>
+        <p className="card-sub">{artist.tracks.length} tracks indexed across the dataset.</p>
         <div className="table-wrap">
           <table className="data-table">
             <thead>
               <tr>
-                <th>Track</th><th>Popularity</th><th>Best Peak</th><th>Weeks on Chart</th>
+                <th>Track</th><th>Popularity</th><th>Best peak</th><th>Weeks on chart</th>
               </tr>
             </thead>
             <tbody>
               {artist.tracks.map((t) => (
                 <tr key={t.track_id}>
                   <td><Link to={`/track/${t.track_id}`}>{t.track_name}</Link></td>
-                  <td>{t.popularity ?? '—'}</td>
-                  <td>{t.best_peak_rank ? `#${t.best_peak_rank}` : '—'}</td>
-                  <td>{t.total_weeks_on_chart ?? '—'}</td>
+                  <td className="num">{t.popularity ?? '—'}</td>
+                  <td className="num">{t.best_peak_rank ? `#${t.best_peak_rank}` : '—'}</td>
+                  <td className="num">{t.total_weeks_on_chart ?? '—'}</td>
                 </tr>
               ))}
             </tbody>

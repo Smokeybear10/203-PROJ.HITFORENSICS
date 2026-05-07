@@ -67,7 +67,14 @@ tracksRouter.get('/workbench', async (req, res, next) => {
 // Q9: decade-adjusted outliers (era decoder)
 tracksRouter.get('/outliers', async (req, res, next) => {
   try {
-    const decade = req.query.decade ? Number(req.query.decade) : null;
+    let decade = null;
+    if (req.query.decade !== undefined && req.query.decade !== '') {
+      const d = Number(req.query.decade);
+      if (!Number.isInteger(d)) {
+        return res.status(400).json({ error: 'decade must be an integer' });
+      }
+      decade = d;
+    }
     const lim = Math.min(Number(req.query.limit) || 50, 200);
 
     // Optimized: uses mv_charted_tracks instead of inline CTE for track_debut

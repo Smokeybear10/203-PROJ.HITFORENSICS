@@ -43,13 +43,15 @@ export function WorkbenchPage() {
 
   return (
     <section>
-      <h1>Audio Feature Workbench</h1>
-      <p className="subtle">
-        Filter charting tracks by audio features. Results include a per-decade chart-longevity percentile
-        computed via NTILE and a global average peak rank comparison.
+      <span className="kicker"><span className="dot" />File Q7 · NTILE percentile</span>
+      <h1>The audio <em>workbench</em>.</h1>
+      <p className="lede">
+        Slide the dials for <b>danceability</b>, <b>energy</b>, <b>valence</b>, and tempo.
+        Results come back ranked by a per-decade chart-longevity percentile and benchmarked
+        against the global average peak rank.
       </p>
 
-      <div className="card filters">
+      <div className="card filters" style={{ marginTop: 28 }}>
         {['danceability', 'energy', 'valence'].map(sliderRow)}
         <div className="filter-row">
           <label>Tempo (BPM)</label>
@@ -61,19 +63,27 @@ export function WorkbenchPage() {
             value={filters.tempo_max}
             onChange={(e) => update('tempo_max', e.target.value)} />
         </div>
-        <button onClick={handleSearch} disabled={status === 'loading'}>
-          {status === 'loading' ? 'Searching...' : 'Search'}
-        </button>
+        <div style={{ marginTop: 14 }}>
+          <button onClick={handleSearch} disabled={status === 'loading'}>
+            {status === 'loading' ? 'Searching…' : 'Run the query'}
+          </button>
+        </div>
       </div>
 
       {status === 'error' && <p className="error">Something went wrong.</p>}
 
       {results.length > 0 && (
-        <div className="card">
-          <p className="subtle">
-            Global avg peak rank: <strong>{results[0]?.global_avg_peak}</strong> &middot;{' '}
-            {results.length} results
-          </p>
+        <>
+          <div className="stats-row" style={{ marginTop: 24 }}>
+            <div className="stat-tile brand">
+              <div className="n">#{results[0]?.global_avg_peak}</div>
+              <div className="l">global avg peak</div>
+            </div>
+            <div className="stat-tile">
+              <div className="n">{results.length}</div>
+              <div className="l">matches</div>
+            </div>
+          </div>
           <div className="table-wrap">
             <table className="data-table">
               <thead>
@@ -87,16 +97,16 @@ export function WorkbenchPage() {
                   <tr key={r.track_id}>
                     <td><Link to={`/track/${r.track_id}`}>{r.track_name}</Link></td>
                     <td>{r.artist_name}</td>
-                    <td>{r.debut_decade}s</td>
-                    <td>#{r.best_peak}</td>
-                    <td>{r.total_weeks}</td>
-                    <td>{r.decade_longevity_percentile}th</td>
+                    <td className="num">{r.debut_decade}s</td>
+                    <td className="num">#{r.best_peak}</td>
+                    <td className="num">{r.total_weeks}</td>
+                    <td className="num">{r.decade_longevity_percentile}th</td>
                   </tr>
                 ))}
               </tbody>
             </table>
           </div>
-        </div>
+        </>
       )}
     </section>
   );

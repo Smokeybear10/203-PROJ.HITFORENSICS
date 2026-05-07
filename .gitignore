@@ -15,3 +15,7 @@ dist/
 # Editor/OS
 .DS_Store
 .vscode/
+.gstack/
+
+# Local reference material (rubric, report, examples) — not for the public repo
+context/

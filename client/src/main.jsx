@@ -15,9 +15,11 @@ import './styles.css';
 function Layout({ children }) {
   return (
     <div className="app">
-      <header>
-        <NavLink to="/" className="brand" end>Hit Forensics</NavLink>
-        <nav>
+      <header className="site-header">
+        <NavLink to="/" className="brand" end>
+          <span className="blob">Hit</span>Forensics<span className="dot">.</span>
+        </NavLink>
+        <nav className="site-nav">
           <NavLink to="/search">Search</NavLink>
           <NavLink to="/workbench">Workbench</NavLink>
           <NavLink to="/trajectories">Trajectories</NavLink>
@@ -27,6 +29,10 @@ function Layout({ children }) {
         </nav>
       </header>
       <main>{children}</main>
+      <footer className="site-footer">
+        <span>By <b>Kevin Li, Tommy Ou, Ronnie Wang, Kev Xue.</b></span>
+        <span>CIS 5500 · Spring 2026 · University of Pennsylvania</span>
+      </footer>
     </div>
   );
 }

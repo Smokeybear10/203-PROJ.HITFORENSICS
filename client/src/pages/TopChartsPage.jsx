@@ -12,36 +12,47 @@ export function TopChartsPage() {
       .catch(() => setStatus('error'));
   }, []);
 
-  if (status === 'loading') return <p>Loading...</p>;
-  if (status === 'error') return <p className="error">Failed to load data.</p>;
+  const rankClass = (i) => {
+    if (i === 0) return 'rank-chip gold';
+    if (i === 1) return 'rank-chip magenta';
+    if (i === 2) return 'rank-chip teal';
+    return 'rank-chip';
+  };
 
   return (
     <section>
-      <h1>Top Charts</h1>
-      <p className="subtle">
-        The longest-running songs in Billboard Hot 100 history, ranked by total weeks on the chart.
+      <span className="kicker"><span className="dot" />File Q5 · aggregations</span>
+      <h1>The songs that <em>just won't leave</em>.</h1>
+      <p className="lede">
+        Ranked by total weeks on the Billboard Hot 100. Some of these spent more than a
+        full year on the chart. Ear-worms, summer anthems, and the occasional Christmas song
+        that never logs off.
       </p>
 
-      <div className="table-wrap">
+      {status === 'loading' && <p className="loading">Loading the leaderboard</p>}
+      {status === 'error' && <p className="error">Failed to load data.</p>}
+      {status === 'ok' && (
+      <div className="table-wrap" style={{ marginTop: 28 }}>
         <table className="data-table">
           <thead>
             <tr>
-              <th>#</th><th>Track</th><th>Artist</th><th>Weeks on Chart</th><th>Best Peak</th>
+              <th>#</th><th>Track</th><th>Artist</th><th>Weeks on chart</th><th>Best peak</th>
             </tr>
           </thead>
           <tbody>
             {tracks.map((t, i) => (
               <tr key={t.track_id}>
-                <td>{i + 1}</td>
+                <td><span className={rankClass(i)}>{i + 1}</span></td>
                 <td><Link to={`/track/${t.track_id}`}>{t.track_name}</Link></td>
                 <td>{t.artist_name}</td>
-                <td>{t.total_weeks}</td>
-                <td>#{t.best_peak}</td>
+                <td className="num">{t.total_weeks}</td>
+                <td className="num">#{t.best_peak}</td>
               </tr>
             ))}
           </tbody>
         </table>
       </div>
+      )}
     </section>
   );
 }
