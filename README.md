@@ -18,8 +18,6 @@ audio similarity.
 ```
 hit-forensics/
 ├── README.md
-├── DESIGN.md                   # Visual design system (typography, color, components)
-├── CLAUDE.md                   # Internal agent guide
 │
 ├── db/                         # Postgres artifacts
 │   ├── queries.sql             #   All 10 production queries (Q1–Q10)
